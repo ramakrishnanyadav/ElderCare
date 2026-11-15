@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eldercare-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: eldercare_admin
+      POSTGRES_PASSWORD: eldercare_secure_pass_2026
+      POSTGRES_DB: eldercare_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/001-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eldercare_admin -d eldercare_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: eldercare-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP Port
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: ""
+
+volumes:
+  pgdata:
+    driver: local

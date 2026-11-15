@@ -1,0 +1,22 @@
+# Threat Model: ELDERCARE 360 (OWASP API Top 10 Mapped)
+
+## 1. Scope & Asset Classification
+- **Primary Assets**: Patient Health Information (PHI), medication versions, tamper-evident adherence ledger, consent policies, emergency break-glass sessions, device authentication tokens.
+- **Threat Actors**: Malicious outsiders, unauthorized family members attempting to override elder consent, compromised caregiver credentials, untrusted network sniffers, compromised email relays.
+
+---
+
+## 2. OWASP API Top 10 (2023) Vulnerability Mapping & Countermeasures
+
+| OWASP Vulnerability | Threat Scenario in ELDERCARE 360 | Engineered Countermeasure | Test Verification Suite |
+| :--- | :--- | :--- | :--- |
+| **API1: Broken Object Level Auth (BOLA / IDOR)** | Family member of Patient A modifies URL path or request body parameter (`patientId`) to inspect Patient B's prescription or adherence records. | Actor identity is resolved strictly from session cookie. `PolicyEngine.authorize()` verifies active membership and valid unrevoked consent for target `patientId`. Postgres RLS enforces secondary isolation. | `test/authz/bola-idor.spec.ts` (Attempts to access Patient B via ID parameter fail with 403 Forbidden). |
+| **API2: Broken Authentication** | Attacker brute-forces Elder's 4-digit PIN or submits stolen PIN on an unregistered mobile device. | Elder PIN is **never** valid alone: it mandates cryptographic device binding (WebAuthn / client key challenge signature). Unknown device fails with generic timing-safe response. PIN lockout after 5 failures with exponential cooldown. | `test/auth/pin-lockout.spec.ts` (Unregistered device rejected; lockout after repeated failures). |
+| **API3: Broken Object Property Level Auth** | User submits JSON payload containing `isVerified: true` or modifies `evidenceGrade` to `CLINICIAN_RECORDED` during routine intake report. | Strict zod schemas with `strip` / `strict` reject unexpected properties. Actor-based evidence grade assignment (only verified clinician roles can issue clinician grades). | `test/security/mass-assignment.spec.ts` (Extra properties stripped and rejected). |
+| **API4: Unrestricted Resource Consumption** | Client requests 50-year schedule horizon or sends rapid requests to exhaust PostgreSQL worker pool. | Schedule horizon hard-capped at 14 days in `@eldercare/domain`. Database rate-limiting per IP and session. | `test/domain/schedule-horizon.spec.ts` (Requests exceeding 14 days truncated or rejected). |
+| **API5: Broken Function Level Auth (BFLA)** | Caregiver invokes `/api/v1/medications/{id}/approve` endpoint to self-approve a dosage increase. | Central policy module evaluates `APPROVE_MEDICATION_CHANGE`. Proposer cannot approve their own change; caregiver role lacks approval privilege. | `test/authz/bfla-two-person.spec.ts` (Caregiver role rejected with 403 Forbidden). |
+| **API6: Unrestricted Access to Sensitive Business Flows** | Care circle member uses automated scripts to flood one-time invite passcodes. | Crockford base32 passcodes burned after 5 invalid attempts. Rate-limited to 5 invite generations per inviter per hour. | `test/auth/invite-burn.spec.ts` (Passcode destroyed after 5 failed attempts). |
+| **API7: Server-Side Request Forgery (SSRF)** | Clinician prescription document upload URL manipulated to hit local cloud metadata endpoints. | Document uploads stored as raw multipart streams to local/S3 storage. Zero outbound fetch requests to arbitrary user-supplied URLs. | `test/security/upload-sanitization.spec.ts`. |
+| **API8: Security Misconfiguration** | Verbose error stack traces exposing PostgreSQL table structures or connection strings. | Global `HttpExceptionFilter` sanitizes internal errors to generic opaque error codes (`{"error": "Internal Error", "ref": "#E-9812"}`). | `test/security/error-sanitization.spec.ts`. |
+| **API9: Improper Inventory Management** | Deprecated API routes or test endpoints remaining accessible in production. | Strict build-time route verification check (`verify-route-actions.ts`) fails compilation if any route lacks explicit policy annotation. | `npm run verify:routes` (Fails build if unannotated route exists). |
+| **API10: Unsafe Consumption of APIs** | Third-party email delivery webhook triggers remote code execution or SQL injection. | Delivery webhooks processed via strict zod schemas. Emails redacted with SHA-256 hashes. | `test/notifications/bounce-webhook.spec.ts`. |

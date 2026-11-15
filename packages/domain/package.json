@@ -1,0 +1,19 @@
+{
+  "name": "@eldercare/domain",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "luxon": "^3.4.4",
+    "rrule": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  }
+}
