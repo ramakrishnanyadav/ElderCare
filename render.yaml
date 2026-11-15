@@ -7,8 +7,8 @@ services:
     env: node
     plan: free
     region: oregon
-    buildCommand: pnpm install --frozen-lockfile && pnpm run build
-    startCommand: node apps/api/dist/src/main.js
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
+    startCommand: node apps/api/dist/main.js
     healthCheckPath: /health
     autoDeploy: true
     envVars:
@@ -45,8 +45,8 @@ services:
     env: node
     plan: starter # Render background workers require starter tier or can run as background process
     region: oregon
-    buildCommand: pnpm install --frozen-lockfile && pnpm run build
-    startCommand: node apps/worker/dist/src/main.js
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
+    startCommand: node apps/worker/dist/main.js
     autoDeploy: true
     envVars:
       - key: NODE_ENV

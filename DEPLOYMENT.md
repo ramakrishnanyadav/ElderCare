@@ -68,11 +68,11 @@ If you prefer configuring services individually:
 - **Branch:** `main`
 - **Build Command:**
   ```bash
-  pnpm install --frozen-lockfile && pnpm run build
+  pnpm install --no-frozen-lockfile && pnpm run build
   ```
 - **Start Command:**
   ```bash
-  node apps/api/dist/src/main.js
+  node apps/api/dist/main.js
   ```
 - **Plan:** Free (or Starter).
 - **Environment Variables:**
