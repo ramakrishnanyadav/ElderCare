@@ -68,11 +68,11 @@ If you prefer configuring services individually:
 - **Branch:** `main`
 - **Build Command:**
   ```bash
-  pnpm install --no-frozen-lockfile && pnpm --filter @eldercare/domain run build && pnpm --filter @eldercare/contracts run build && pnpm --filter eldercare-api run build
+  pnpm install --no-frozen-lockfile && pnpm run build
   ```
 - **Start Command:**
   ```bash
-  node apps/api/dist/main.js
+  pnpm --filter eldercare-api run start
   ```
 - **Plan:** Free (or Starter).
 - **Environment Variables:**

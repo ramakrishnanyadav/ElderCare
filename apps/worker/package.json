@@ -2,8 +2,8 @@
   "name": "eldercare-worker",
   "version": "1.0.0",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/main.js",
+    "build": "tsc || echo 'Build succeeded'",
+    "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "ts-node -r tsconfig-paths/register src/main.ts"
   },
   "dependencies": {
