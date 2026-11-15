@@ -68,7 +68,7 @@ If you prefer configuring services individually:
 - **Branch:** `main`
 - **Build Command:**
   ```bash
-  pnpm install --no-frozen-lockfile && pnpm run build
+  pnpm install --no-frozen-lockfile && pnpm --filter @eldercare/domain run build && pnpm --filter @eldercare/contracts run build && pnpm --filter eldercare-api run build
   ```
 - **Start Command:**
   ```bash

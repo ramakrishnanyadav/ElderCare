@@ -7,7 +7,7 @@ services:
     env: node
     plan: free
     region: oregon
-    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @eldercare/domain run build && pnpm --filter @eldercare/contracts run build && pnpm --filter eldercare-api run build
     startCommand: node apps/api/dist/main.js
     healthCheckPath: /health
     autoDeploy: true
@@ -45,7 +45,7 @@ services:
     env: node
     plan: starter # Render background workers require starter tier or can run as background process
     region: oregon
-    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @eldercare/domain run build && pnpm --filter @eldercare/contracts run build && pnpm --filter eldercare-worker run build
     startCommand: node apps/worker/dist/main.js
     autoDeploy: true
     envVars:

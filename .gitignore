@@ -7,6 +7,12 @@ node_modules/
 dist/
 build/
 coverage/
+*.tsbuildinfo
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts
+packages/*/dist/
+apps/*/dist/
 
 # Environment files
 .env
